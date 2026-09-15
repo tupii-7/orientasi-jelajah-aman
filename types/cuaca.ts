@@ -11,3 +11,15 @@ export interface WeatherCardProps {
   suhu: number;
   tingkatAQI: TingkatAQI;
 }
+export interface DataCuaca {
+  kota: string;
+  suhu: number;
+  kelembapan: number;
+  catatan?: string;
+}
+export interface LaporanUdara {
+  kota: string;
+  indeksAQI: number;
+  tingkat: TingkatAQI;
+  diperbaruiPada?: string;
+}

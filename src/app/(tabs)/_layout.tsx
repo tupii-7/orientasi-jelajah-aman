@@ -10,6 +10,8 @@ export default function TabLayout() {
       <Tabs.Screen name="riwayat" options={{ title: "Riwayat" }} />
 
       <Tabs.Screen name="pengaturan" options={{ title: "Pengaturan" }} />
+
+      <Tabs.Screen name="tentang" options={{ title: "Tentang" }} />
     </Tabs>
   );
 }

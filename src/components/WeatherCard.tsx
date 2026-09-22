@@ -1,8 +1,8 @@
 // components/WeatherCard.tsx
 
 import { Text, View } from "react-native";
+import { WeatherCardProps } from "../../types/cuaca";
 import { spacing, typeScale } from "../constants/styles";
-import { WeatherCardProps } from "../types/cuaca";
 
 export default function WeatherCard({
   kota,

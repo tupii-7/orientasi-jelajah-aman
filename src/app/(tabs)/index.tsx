@@ -2,11 +2,11 @@
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Button, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { HasilGeocoding } from "../../../types/geocoding";
 import SearchBox from "../../components/SearchBox";
 import WeatherCard from "../../components/WeatherCard";
 import { useDebounce } from "../../hooks/use-debounce";
 import { cariKota } from "../../services/geocodingService";
-import { HasilGeocoding } from "../../types/geocoding";
 
 export default function HalamanUtama() {
   const [teksCari, setTeksCari] = useState("");

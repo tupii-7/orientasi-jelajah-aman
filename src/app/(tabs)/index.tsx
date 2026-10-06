@@ -3,6 +3,7 @@ import {
   ambilKoordinatSaatIni,
   mintaIzinLokasi,
 } from "@/services/locationService";
+import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -136,25 +137,21 @@ export default function HalamanUtama() {
             kota={kotaTerpilih.name}
             suhu={cuaca.saatIni.suhu}
             tingkatAQI={konversiTingkatAQI(kualitasUdara.indeksAQI)}
-            indeksAQI={kualitasUdara.indeksAQI}
           />
-
-          <View style={{ gap: 4 }}>
-            <Text style={{ fontSize: 14 }}>
-              Suhu hari ini:{" "}
-              <Text style={{ fontWeight: "600" }}>
-                {cuaca.harian.suhuMaksimal[0]}°C
-              </Text>{" "}
-              /{" "}
-              <Text style={{ fontWeight: "600" }}>
-                {cuaca.harian.suhuMinimal[0]}°C
-              </Text>
-            </Text>
-
-            <Text style={{ fontSize: 12, color: "#888" }}>
-              Maksimal / Minimal
-            </Text>
-          </View>
+          <Button
+            title="Tambahkan ke Favorit"
+            onPress={() =>
+              router.push({
+                pathname: "/tambah-favorit",
+                params: {
+                  id: String(kotaTerpilih.id),
+                  nama: kotaTerpilih.name,
+                  lat: String(kotaTerpilih.latitude),
+                  lon: String(kotaTerpilih.longitude),
+                },
+              })
+            }
+          />
         </>
       )}
 

@@ -2,6 +2,8 @@
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
+Cache-segar adalah data tersimpan yang masih berada dalam batas TTL sehingga aplikasi dapat menampilkannya tanpa meminta data baru ke internet. Cache-basi adalah data tersimpan yang melewati TTL, sehingga aplikasi akan mencoba mengambil data terbaru dan hanya memakainya jika jaringan gagal. First-run offline terjadi ketika aplikasi dibuka tanpa koneksi dan belum memiliki data tersimpan untuk kota tersebut, sehingga tidak ada data yang dapat ditampilkan. Label status data penting agar pengguna memahami apakah informasi yang dilihat berasal dari cache segar, cache basi, atau internet dan dapat menilai tingkat kemutakhirannya.
+
 ## Get started
 
 1. Install dependencies

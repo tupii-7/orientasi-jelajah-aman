@@ -1,17 +1,21 @@
 // src/app/(tabs)/riwayat.tsx
-import { useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
-import { Alert, Button, Text, View } from "react-native";
+import { Alert, Button, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { KotaFavorit } from "../../../types/favorit";
+import { HasilGeocoding } from "../../../types/geocoding";
 import { ambilSemuaFavorit, hapusFavorit } from "../../services/favoritStorage";
+import { ambilRiwayatPencarian } from "../../services/recentSearchStorage";
 
 export default function TabRiwayat() {
   const [daftarFavorit, setDaftarFavorit] = useState<KotaFavorit[]>([]);
+  const [daftarRiwayat, setDaftarRiwayat] = useState<HasilGeocoding[]>([]);
 
   useFocusEffect(
     useCallback(() => {
       ambilSemuaFavorit().then(setDaftarFavorit);
+      ambilRiwayatPencarian().then(setDaftarRiwayat);
     }, []),
   );
 
@@ -33,7 +37,44 @@ export default function TabRiwayat() {
 
   return (
     <SafeAreaView style={{ flex: 1, padding: 16, gap: 12 }}>
-      <Text style={{ fontSize: 18, fontWeight: "bold" }}>Kota Favorit</Text>
+      <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+        Riwayat Pencarian
+      </Text>
+
+      <Text style={{ color: "#666" }}>
+        {daftarRiwayat.length} pencarian terakhir
+      </Text>
+
+      {daftarRiwayat.length === 0 && (
+        <Text>Belum ada riwayat pencarian</Text>
+      )}
+      {daftarRiwayat.map((kota) => (
+        <TouchableOpacity
+          key={kota.id}
+          onPress={() =>
+            router.push({
+              pathname: "/",
+              params: {
+                recentId: String(kota.id),
+                recentName: kota.name,
+                recentLatitude: String(kota.latitude),
+                recentLongitude: String(kota.longitude),
+                recentCountry: kota.country,
+                recentAdmin1: kota.admin1,
+                recentToken: String(Date.now()),
+              },
+            })
+          }
+          accessibilityRole="button"
+          accessibilityLabel={`Cari cuaca ${kota.name} lagi`}
+        >
+          <Text>{kota.name}</Text>
+        </TouchableOpacity>
+      ))}
+
+      <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 12 }}>
+        Kota Favorit
+      </Text>
 
       <Text style={{ color: "#666" }}>
         Tersimpan {daftarFavorit.length} kota

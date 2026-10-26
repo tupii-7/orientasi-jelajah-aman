@@ -19,9 +19,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="riwayat"
         options={{
-          title: "Favorit",
+          title: "Riwayat",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="heart-outline" size={size} color={color} />
+            <Ionicons name="time-outline" size={size} color={color} />
           ),
         }}
       />

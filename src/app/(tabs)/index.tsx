@@ -1,5 +1,5 @@
 // src/app/(tabs)/index.tsx
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -32,6 +32,7 @@ import {
   mintaIzinLokasi,
 } from "../../services/locationService";
 import { konversiTingkatAQI } from "../../services/weatherAdapter";
+import { simpanRiwayatPencarian } from "../../services/recentSearchStorage";
 
 import {
   HasilCuacaOffline,
@@ -40,6 +41,23 @@ import {
 import { HasilGeocoding } from "../../../types/geocoding";
 
 export default function HalamanUtama() {
+  const {
+    recentId,
+    recentName,
+    recentLatitude,
+    recentLongitude,
+    recentCountry,
+    recentAdmin1,
+    recentToken,
+  } = useLocalSearchParams<{
+    recentId?: string;
+    recentName?: string;
+    recentLatitude?: string;
+    recentLongitude?: string;
+    recentCountry?: string;
+    recentAdmin1?: string;
+    recentToken?: string;
+  }>();
   const [teksCari, setTeksCari] = useState("");
   const [hasilPencarian, setHasilPencarian] = useState<HasilGeocoding[]>([]);
   const [kotaTerpilih, setKotaTerpilih] = useState<HasilGeocoding | null>(null);
@@ -53,6 +71,38 @@ export default function HalamanUtama() {
 
   const teksTertunda = useDebounce(teksCari, 500);
   const requestIdRef = useRef(0); // pencegah race condition
+
+  useEffect(() => {
+    if (!recentId || !recentName || !recentLatitude || !recentLongitude) {
+      return;
+    }
+
+    const latitude = Number(recentLatitude);
+    const longitude = Number(recentLongitude);
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return;
+
+    setTeksCari(recentName);
+    pilihKota(
+      {
+        id: Number(recentId),
+        name: recentName,
+        latitude,
+        longitude,
+        country: recentCountry ?? "",
+        admin1: recentAdmin1,
+      },
+      false,
+      false,
+    );
+  }, [
+    recentAdmin1,
+    recentCountry,
+    recentId,
+    recentLatitude,
+    recentLongitude,
+    recentName,
+    recentToken,
+  ]);
 
   async function muatKotaTersimpan() {
     setKotaTersimpan(await daftarKotaTersimpan());
@@ -75,8 +125,15 @@ export default function HalamanUtama() {
       .catch(() => setHasilPencarian([]));
   }, [teksTertunda]);
 
-  async function pilihKota(kota: HasilGeocoding, paksaPerbarui = false) {
+  async function pilihKota(
+    kota: HasilGeocoding,
+    paksaPerbarui = false,
+    catatRiwayat = true,
+  ) {
     setKotaTerpilih(kota);
+    if (catatRiwayat) {
+      await simpanRiwayatPencarian(kota);
+    }
     const idSaatIni = ++requestIdRef.current;
     setSedangMemuat(true);
     setPesanError(null);
@@ -123,13 +180,17 @@ export default function HalamanUtama() {
 
     setPesanLokasi(null);
     const koordinat = await ambilKoordinatSaatIni();
-    pilihKota({
-      id: -1,
-      name: "Lokasi Saat Ini",
-      latitude: koordinat.latitude,
-      longitude: koordinat.longitude,
-      country: "",
-    });
+    pilihKota(
+      {
+        id: -1,
+        name: "Lokasi Saat Ini",
+        latitude: koordinat.latitude,
+        longitude: koordinat.longitude,
+        country: "",
+      },
+      false,
+      false,
+    );
   }
 
   return (
@@ -138,7 +199,7 @@ export default function HalamanUtama() {
         contentContainerStyle={{ padding: 16, gap: 16 }}
         keyboardShouldPersistTaps="handled"
       >
-        <SearchBox onCari={setTeksCari} />
+        <SearchBox onCari={setTeksCari} teksAwal={teksCari} />
         <Button
           title="Gunakan Lokasi Saat Ini"
           onPress={gunakanLokasiSaatIni}
@@ -163,13 +224,17 @@ export default function HalamanUtama() {
               <TouchableOpacity
                 key={k.kunci}
                 onPress={() =>
-                  pilihKota({
-                    id: k.id,
-                    name: k.nama,
-                    latitude: k.latitude,
-                    longitude: k.longitude,
-                    country: "",
-                  })
+                  pilihKota(
+                    {
+                      id: k.id,
+                      name: k.nama,
+                      latitude: k.latitude,
+                      longitude: k.longitude,
+                      country: "",
+                    },
+                    false,
+                    false,
+                  )
                 }
               >
                 <Text>{k.nama}</Text>
@@ -207,7 +272,7 @@ export default function HalamanUtama() {
             </Text>
             <Button
               title="Perbarui Sekarang"
-              onPress={() => pilihKota(kotaTerpilih, true)}
+              onPress={() => pilihKota(kotaTerpilih, true, false)}
             />
             <Button
               title="Tambahkan ke Favorit"

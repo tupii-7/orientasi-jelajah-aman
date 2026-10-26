@@ -1,13 +1,18 @@
 // src/components/SearchBox.tsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TextInput, View } from "react-native";
 
 interface SearchBoxProps {
   onCari: (teks: string) => void;
+  teksAwal?: string;
 }
 
-export default function SearchBox({ onCari }: SearchBoxProps) {
-  const [teks, setTeks] = useState("");
+export default function SearchBox({ onCari, teksAwal = "" }: SearchBoxProps) {
+  const [teks, setTeks] = useState(teksAwal);
+
+  useEffect(() => {
+    setTeks(teksAwal);
+  }, [teksAwal]);
 
   function handleChange(nilaiBaru: string) {
     setTeks(nilaiBaru);

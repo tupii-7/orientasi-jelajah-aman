@@ -9,8 +9,10 @@ import { HasilGeocoding } from "../../../types/geocoding";
 import { ambilSemuaFavorit, hapusFavorit } from "../../services/favoritStorage";
 import { daftarKotaTersimpan, hapusCache } from "../../services/cacheRepository";
 import { ambilRiwayatPencarian } from "../../services/recentSearchStorage";
+import { useAppTheme } from "../../hooks/use-app-theme";
 
 export default function TabRiwayat() {
+  const { colors } = useAppTheme();
   const [daftarFavorit, setDaftarFavorit] = useState<KotaFavorit[]>([]);
   const [daftarRiwayat, setDaftarRiwayat] = useState<HasilGeocoding[]>([]);
   const [daftarCache, setDaftarCache] = useState<RingkasanKotaTersimpan[]>([]);
@@ -64,17 +66,19 @@ export default function TabRiwayat() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, padding: 16, gap: 12 }}>
-      <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+    <SafeAreaView
+      style={{ flex: 1, padding: 16, gap: 12, backgroundColor: colors.background }}
+    >
+      <Text style={{ color: colors.text, fontSize: 18, fontWeight: "bold" }}>
         Riwayat Pencarian
       </Text>
 
-      <Text style={{ color: "#666" }}>
+      <Text style={{ color: colors.textSecondary }}>
         {daftarRiwayat.length} pencarian terakhir
       </Text>
 
       {daftarRiwayat.length === 0 && (
-        <Text>Belum ada riwayat pencarian</Text>
+        <Text style={{ color: colors.text }}>Belum ada riwayat pencarian</Text>
       )}
       {daftarRiwayat.map((kota) => (
         <TouchableOpacity
@@ -96,15 +100,17 @@ export default function TabRiwayat() {
           accessibilityRole="button"
           accessibilityLabel={`Cari cuaca ${kota.name} lagi`}
         >
-          <Text>{kota.name}</Text>
+          <Text style={{ color: colors.text }}>{kota.name}</Text>
         </TouchableOpacity>
       ))}
 
-      <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 12 }}>
+      <Text style={{ color: colors.text, fontSize: 18, fontWeight: "bold", marginTop: 12 }}>
         Kota Tersimpan Offline
       </Text>
 
-      {daftarCache.length === 0 && <Text>Belum ada cache kota</Text>}
+      {daftarCache.length === 0 && (
+        <Text style={{ color: colors.text }}>Belum ada cache kota</Text>
+      )}
       {daftarCache.map((kota) => (
         <View
           key={kota.kunci}
@@ -130,7 +136,7 @@ export default function TabRiwayat() {
             accessibilityRole="button"
             accessibilityLabel={`Buka cache offline ${kota.nama}`}
           >
-            <Text>{kota.nama}</Text>
+            <Text style={{ color: colors.text }}>{kota.nama}</Text>
           </TouchableOpacity>
           <Button
             title="Hapus Cache"
@@ -140,15 +146,17 @@ export default function TabRiwayat() {
         </View>
       ))}
 
-      <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 12 }}>
+      <Text style={{ color: colors.text, fontSize: 18, fontWeight: "bold", marginTop: 12 }}>
         Kota Favorit
       </Text>
 
-      <Text style={{ color: "#666" }}>
+      <Text style={{ color: colors.textSecondary }}>
         Tersimpan {daftarFavorit.length} kota
       </Text>
 
-      {daftarFavorit.length === 0 && <Text>Belum ada kota favorit</Text>}
+      {daftarFavorit.length === 0 && (
+        <Text style={{ color: colors.text }}>Belum ada kota favorit</Text>
+      )}
       {daftarFavorit.map((kota) => (
         <View
           key={kota.id}
@@ -158,7 +166,7 @@ export default function TabRiwayat() {
             alignItems: "center",
           }}
         >
-          <Text>{kota.nama}</Text>
+          <Text style={{ color: colors.text }}>{kota.nama}</Text>
           <Button
             title="Hapus"
             color="red"

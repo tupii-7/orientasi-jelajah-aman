@@ -1,6 +1,7 @@
 // src/components/SearchBox.tsx
 import { useEffect, useState } from "react";
 import { TextInput, View } from "react-native";
+import { useAppTheme } from "../hooks/use-app-theme";
 
 interface SearchBoxProps {
   onCari: (teks: string) => void;
@@ -8,6 +9,7 @@ interface SearchBoxProps {
 }
 
 export default function SearchBox({ onCari, teksAwal = "" }: SearchBoxProps) {
+  const { colors } = useAppTheme();
   const [teks, setTeks] = useState(teksAwal);
 
   useEffect(() => {
@@ -26,7 +28,15 @@ export default function SearchBox({ onCari, teksAwal = "" }: SearchBoxProps) {
         value={teks}
         onChangeText={handleChange}
         accessibilityLabel="Cari cuaca untuk kota yang dimasukkan"
-        style={{ borderWidth: 1, padding: 8, borderRadius: 8 }}
+        placeholderTextColor={colors.textSecondary}
+        style={{
+          borderWidth: 1,
+          borderColor: colors.border,
+          color: colors.text,
+          backgroundColor: colors.backgroundElement,
+          padding: 8,
+          borderRadius: 8,
+        }}
       />
     </View>
   );

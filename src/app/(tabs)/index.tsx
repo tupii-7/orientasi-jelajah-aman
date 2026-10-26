@@ -35,6 +35,7 @@ import {
 } from "../../services/locationService";
 import { konversiTingkatAQI } from "../../services/weatherAdapter";
 import { simpanRiwayatPencarian } from "../../services/recentSearchStorage";
+import { useAppTheme } from "../../hooks/use-app-theme";
 
 import {
   HasilCuacaOffline,
@@ -43,6 +44,7 @@ import {
 import { HasilGeocoding } from "../../../types/geocoding";
 
 export default function HalamanUtama() {
+  const { colors } = useAppTheme();
   const {
     recentId,
     recentName,
@@ -220,7 +222,7 @@ export default function HalamanUtama() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <ScrollView
         contentContainerStyle={{ padding: 16, gap: 16 }}
         keyboardShouldPersistTaps="handled"
@@ -232,18 +234,20 @@ export default function HalamanUtama() {
         />
 
         {pesanLokasi && (
-          <Text accessibilityLabel={pesanLokasi}>{pesanLokasi}</Text>
+          <Text accessibilityLabel={pesanLokasi} style={{ color: colors.text }}>
+            {pesanLokasi}
+          </Text>
         )}
 
         {hasilPencarian.map((kota) => (
           <TouchableOpacity key={kota.id} onPress={() => pilihKota(kota)}>
-            <Text>{kota.name}</Text>
+            <Text style={{ color: colors.text }}>{kota.name}</Text>
           </TouchableOpacity>
         ))}
 
         {kotaTersimpan.length > 0 && (
           <View style={{ gap: 6 }}>
-            <Text style={{ fontWeight: "bold" }}>
+            <Text style={{ color: colors.text, fontWeight: "bold" }}>
               Tersimpan di perangkat (bisa dibuka offline)
             </Text>
             {kotaTersimpan.map((k) => (
@@ -270,7 +274,7 @@ export default function HalamanUtama() {
                     )
                   }
                 >
-                  <Text>{k.nama}</Text>
+                  <Text style={{ color: colors.text }}>{k.nama}</Text>
                 </TouchableOpacity>
                 <Button
                   title="Hapus Cache"
@@ -286,7 +290,9 @@ export default function HalamanUtama() {
 
         {pesanError && (
           <View>
-            <Text accessibilityLabel={pesanError}>{pesanError}</Text>
+            <Text accessibilityLabel={pesanError} style={{ color: colors.text }}>
+              {pesanError}
+            </Text>
             <Button
               title="Coba Lagi"
               onPress={() => kotaTerpilih && pilihKota(kotaTerpilih, true)}
@@ -305,7 +311,7 @@ export default function HalamanUtama() {
               suhu={hasil.cuaca.saatIni.suhu}
               tingkatAQI={konversiTingkatAQI(hasil.kualitasUdara.indeksAQI)}
             />
-            <Text style={{ fontSize: 12, color: "#888888" }}>
+            <Text style={{ fontSize: 12, color: colors.textSecondary }}>
               Kondisi: {labelKodeCuaca(hasil.cuaca.saatIni.kodeCuaca)}{" "}
               {"\u2022"} Angin {hasil.cuaca.saatIni.kecepatanAngin} km/j
             </Text>

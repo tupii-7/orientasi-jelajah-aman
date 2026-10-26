@@ -1,7 +1,8 @@
 // src/components/WeatherCard.tsx
+import { Ionicons } from "@expo/vector-icons";
 import { Text, View } from "react-native";
 import { TingkatAQI, WeatherCardProps } from "../../types/cuaca";
-import { spacing, typeScale } from "../constants/styles";
+import { typeScale } from "../constants/styles";
 import { useAppTheme } from "../hooks/use-app-theme";
 
 const warnaPerTingkat: Record<TingkatAQI, string> = {
@@ -33,20 +34,29 @@ export default function WeatherCard({
       accessible
       accessibilityLabel={labelAksesibilitas}
       style={{
-        padding: spacing.sedang,
-        borderRadius: 8,
-        backgroundColor: colors.backgroundElement,
+        padding: 22,
+        borderRadius: 24,
+        backgroundColor: colors.primary,
       }}
     >
-      <Text style={{ color: colors.text, fontWeight: "bold", fontSize: typeScale.judul }}>
-        {kota}
+      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <View>
+          <Text style={{ color: colors.onPrimary, fontSize: 13, opacity: 0.8 }}>
+            CUACA SAAT INI
+          </Text>
+          <Text style={{ color: colors.onPrimary, fontWeight: "700", fontSize: typeScale.judul, marginTop: 4 }}>
+            {kota}
+          </Text>
+        </View>
+        <Ionicons name="partly-sunny" size={42} color={colors.onPrimary} />
+      </View>
+      <Text style={{ color: colors.onPrimary, fontSize: 52, fontWeight: "700", marginTop: 18 }}>
+        {suhu}°
       </Text>
-      <Text style={{ color: colors.text, fontSize: 32 }}>{suhu}°C</Text>
-      <Text
-        style={{ color: warnaPerTingkat[tingkatAQI], fontSize: typeScale.isi }}
-      >
-        {teksAQI}
-      </Text>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 7, marginTop: 8 }}>
+        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: warnaPerTingkat[tingkatAQI] }} />
+        <Text style={{ color: colors.onPrimary, fontSize: typeScale.isi }}>{teksAQI}</Text>
+      </View>
     </View>
   );
 }

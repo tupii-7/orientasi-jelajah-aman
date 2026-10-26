@@ -1,11 +1,12 @@
 // src/app/(tabs)/index.tsx
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
 import {
   ActivityIndicator,
   Alert,
-  Button,
   ScrollView,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
@@ -224,14 +225,32 @@ export default function HalamanUtama() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <ScrollView
-        contentContainerStyle={{ padding: 16, gap: 16 }}
+        contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
       >
+        <View style={styles.hero}>
+          <View>
+            <Text style={[styles.eyebrow, { color: colors.primary }]}>SELAMAT DATANG</Text>
+            <Text style={[styles.heading, { color: colors.text }]}>Jelajah Aman</Text>
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+              Pantau cuaca dan kualitas udara di sekitarmu.
+            </Text>
+          </View>
+          <View style={[styles.heroIcon, { backgroundColor: colors.primarySoft }]}>
+            <Ionicons name="compass" size={26} color={colors.primary} />
+          </View>
+        </View>
+
         <SearchBox onCari={setTeksCari} teksAwal={teksCari} />
-        <Button
-          title="Gunakan Lokasi Saat Ini"
+        <TouchableOpacity
+          accessibilityRole="button"
           onPress={gunakanLokasiSaatIni}
-        />
+          style={[styles.locationButton, { backgroundColor: colors.primarySoft }]}
+        >
+          <Ionicons name="navigate" size={18} color={colors.primary} />
+          <Text style={{ color: colors.primary, fontWeight: "700" }}>Gunakan lokasi saat ini</Text>
+          <Ionicons name="arrow-forward" size={17} color={colors.primary} />
+        </TouchableOpacity>
 
         {pesanLokasi && (
           <Text accessibilityLabel={pesanLokasi} style={{ color: colors.text }}>
@@ -240,15 +259,31 @@ export default function HalamanUtama() {
         )}
 
         {hasilPencarian.map((kota) => (
-          <TouchableOpacity key={kota.id} onPress={() => pilihKota(kota)}>
-            <Text style={{ color: colors.text }}>{kota.name}</Text>
+          <TouchableOpacity
+            key={kota.id}
+            onPress={() => pilihKota(kota)}
+            style={[styles.searchResult, { backgroundColor: colors.backgroundElement }]}
+          >
+            <Ionicons name="location-outline" size={20} color={colors.primary} />
+            <View>
+              <Text style={{ color: colors.text, fontWeight: "600" }}>{kota.name}</Text>
+              <Text style={{ color: colors.textSecondary, fontSize: 12 }}>
+                {[kota.admin1, kota.country].filter(Boolean).join(", ")}
+              </Text>
+            </View>
           </TouchableOpacity>
         ))}
 
         {kotaTersimpan.length > 0 && (
-          <View style={{ gap: 6 }}>
-            <Text style={{ color: colors.text, fontWeight: "bold" }}>
-              Tersimpan di perangkat (bisa dibuka offline)
+          <View style={styles.section}>
+            <View style={styles.sectionHeading}>
+              <Text style={{ color: colors.text, fontWeight: "700", fontSize: 17 }}>
+                Lokasi tersimpan
+              </Text>
+              <Ionicons name="bookmark" size={18} color={colors.primary} />
+            </View>
+            <Text style={{ color: colors.textSecondary, fontSize: 13 }}>
+              Tetap bisa dibuka saat offline
             </Text>
             {kotaTersimpan.map((k) => (
               <View
@@ -257,6 +292,7 @@ export default function HalamanUtama() {
                   flexDirection: "row",
                   justifyContent: "space-between",
                   alignItems: "center",
+                  paddingVertical: 10,
                 }}
               >
                 <TouchableOpacity
@@ -274,13 +310,18 @@ export default function HalamanUtama() {
                     )
                   }
                 >
-                  <Text style={{ color: colors.text }}>{k.nama}</Text>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                    <Ionicons name="time-outline" size={18} color={colors.textSecondary} />
+                    <Text style={{ color: colors.text, fontWeight: "600" }}>{k.nama}</Text>
+                  </View>
                 </TouchableOpacity>
-                <Button
-                  title="Hapus Cache"
-                  color="red"
+                <TouchableOpacity
+                  accessibilityLabel={`Hapus cache ${k.nama}`}
                   onPress={() => konfirmasiHapusCache(k.kunci, k.nama)}
-                />
+                  style={styles.deleteButton}
+                >
+                  <Ionicons name="trash-outline" size={17} color={colors.danger} />
+                </TouchableOpacity>
               </View>
             ))}
           </View>
@@ -289,14 +330,16 @@ export default function HalamanUtama() {
         {sedangMemuat && <ActivityIndicator />}
 
         {pesanError && (
-          <View>
+          <View style={[styles.messageCard, { backgroundColor: colors.backgroundElement }]}>
             <Text accessibilityLabel={pesanError} style={{ color: colors.text }}>
               {pesanError}
             </Text>
-            <Button
-              title="Coba Lagi"
+            <TouchableOpacity
               onPress={() => kotaTerpilih && pilihKota(kotaTerpilih, true)}
-            />
+              style={[styles.primaryButton, { backgroundColor: colors.primary }]}
+            >
+              <Text style={{ color: colors.onPrimary, fontWeight: "700" }}>Coba lagi</Text>
+            </TouchableOpacity>
           </View>
         )}
 
@@ -315,12 +358,14 @@ export default function HalamanUtama() {
               Kondisi: {labelKodeCuaca(hasil.cuaca.saatIni.kodeCuaca)}{" "}
               {"\u2022"} Angin {hasil.cuaca.saatIni.kecepatanAngin} km/j
             </Text>
-            <Button
-              title="Perbarui Sekarang"
+            <TouchableOpacity
               onPress={() => pilihKota(kotaTerpilih, true, false)}
-            />
-            <Button
-              title="Tambahkan ke Favorit"
+              style={[styles.outlineButton, { borderColor: colors.border }]}
+            >
+              <Ionicons name="refresh" size={17} color={colors.primary} />
+              <Text style={{ color: colors.text, fontWeight: "700" }}>Perbarui sekarang</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
               onPress={() =>
                 router.push({
                   pathname: "/tambah-favorit",
@@ -332,7 +377,11 @@ export default function HalamanUtama() {
                   },
                 })
               }
-            />
+              style={[styles.primaryButton, { backgroundColor: colors.primary }]}
+            >
+              <Ionicons name="heart-outline" size={17} color={colors.onPrimary} />
+              <Text style={{ color: colors.onPrimary, fontWeight: "700" }}>Tambahkan ke favorit</Text>
+            </TouchableOpacity>
           </>
         )}
 
@@ -341,3 +390,20 @@ export default function HalamanUtama() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  content: { padding: 20, gap: 16, paddingBottom: 32 },
+  hero: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 4 },
+  eyebrow: { fontSize: 11, fontWeight: "800", letterSpacing: 1.4 },
+  heading: { fontSize: 30, fontWeight: "800", marginTop: 5 },
+  subtitle: { fontSize: 14, marginTop: 5, maxWidth: 280, lineHeight: 20 },
+  heroIcon: { width: 54, height: 54, borderRadius: 18, alignItems: "center", justifyContent: "center" },
+  locationButton: { flexDirection: "row", alignItems: "center", gap: 9, padding: 14, borderRadius: 14 },
+  searchResult: { flexDirection: "row", alignItems: "center", gap: 12, padding: 14, borderRadius: 14 },
+  section: { gap: 4, paddingTop: 4 },
+  sectionHeading: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  deleteButton: { padding: 8 },
+  messageCard: { gap: 14, padding: 16, borderRadius: 16 },
+  primaryButton: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, padding: 14, borderRadius: 14 },
+  outlineButton: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, padding: 13, borderRadius: 14, borderWidth: 1 },
+});

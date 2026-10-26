@@ -1,5 +1,6 @@
 // src/components/SearchBox.tsx
 import { useEffect, useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
 import { TextInput, View } from "react-native";
 import { useAppTheme } from "../hooks/use-app-theme";
 
@@ -22,7 +23,19 @@ export default function SearchBox({ onCari, teksAwal = "" }: SearchBoxProps) {
   }
 
   return (
-    <View>
+    <View
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 10,
+        paddingHorizontal: 14,
+        borderWidth: 1,
+        borderColor: colors.border,
+        backgroundColor: colors.backgroundElement,
+        borderRadius: 16,
+      }}
+    >
+      <Ionicons name="search" size={20} color={colors.textSecondary} />
       <TextInput
         placeholder="Cari nama kota..."
         value={teks}
@@ -30,12 +43,10 @@ export default function SearchBox({ onCari, teksAwal = "" }: SearchBoxProps) {
         accessibilityLabel="Cari cuaca untuk kota yang dimasukkan"
         placeholderTextColor={colors.textSecondary}
         style={{
-          borderWidth: 1,
-          borderColor: colors.border,
+          flex: 1,
           color: colors.text,
-          backgroundColor: colors.backgroundElement,
-          padding: 8,
-          borderRadius: 8,
+          paddingVertical: 14,
+          fontSize: 15,
         }}
       />
     </View>

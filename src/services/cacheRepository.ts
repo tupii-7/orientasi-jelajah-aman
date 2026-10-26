@@ -93,6 +93,11 @@ export async function bersihkanCacheLama(batasUmurMs: number): Promise<void> {
   ]);
 }
 
+export async function hapusCache(kunci: string): Promise<void> {
+  const db = await ambilDatabase();
+  await db.runAsync("DELETE FROM cache_cuaca WHERE kunci = ?", [kunci]);
+}
+
 // Invalidation manual: kosongkan seluruh cache
 export async function hapusSemuaCache(): Promise<void> {
   const db = await ambilDatabase();

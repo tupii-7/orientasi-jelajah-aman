@@ -3,6 +3,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Button,
   ScrollView,
   Text,
@@ -21,6 +22,7 @@ import { useDebounce } from "../../hooks/use-debounce";
 import {
   bersihkanCacheLama,
   daftarKotaTersimpan,
+  hapusCache,
 } from "../../services/cacheRepository";
 import {
   ambilCuacaOfflineFirst,
@@ -106,6 +108,30 @@ export default function HalamanUtama() {
 
   async function muatKotaTersimpan() {
     setKotaTersimpan(await daftarKotaTersimpan());
+  }
+
+  function konfirmasiHapusCache(kunci: string, nama: string) {
+    Alert.alert(
+      "Hapus Cache Kota",
+      `Hapus data offline untuk ${nama} dari perangkat?`,
+      [
+        { text: "Batal", style: "cancel" },
+        {
+          text: "Hapus",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await hapusCache(kunci);
+              setKotaTersimpan((prev) =>
+                prev.filter((kota) => kota.kunci !== kunci),
+              );
+            } catch {
+              Alert.alert("Gagal Menghapus", "Cache kota belum dapat dihapus.");
+            }
+          },
+        },
+      ],
+    );
   }
 
   // Saat aplikasi dibuka: buang cache > 7 hari, lalu tampilkan daftar tersimpan
@@ -221,24 +247,37 @@ export default function HalamanUtama() {
               Tersimpan di perangkat (bisa dibuka offline)
             </Text>
             {kotaTersimpan.map((k) => (
-              <TouchableOpacity
+              <View
                 key={k.kunci}
-                onPress={() =>
-                  pilihKota(
-                    {
-                      id: k.id,
-                      name: k.nama,
-                      latitude: k.latitude,
-                      longitude: k.longitude,
-                      country: "",
-                    },
-                    false,
-                    false,
-                  )
-                }
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
               >
-                <Text>{k.nama}</Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() =>
+                    pilihKota(
+                      {
+                        id: k.id,
+                        name: k.nama,
+                        latitude: k.latitude,
+                        longitude: k.longitude,
+                        country: "",
+                      },
+                      false,
+                      false,
+                    )
+                  }
+                >
+                  <Text>{k.nama}</Text>
+                </TouchableOpacity>
+                <Button
+                  title="Hapus Cache"
+                  color="red"
+                  onPress={() => konfirmasiHapusCache(k.kunci, k.nama)}
+                />
+              </View>
             ))}
           </View>
         )}

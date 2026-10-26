@@ -3,19 +3,23 @@ import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import { Alert, Button, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { RingkasanKotaTersimpan } from "../../../types/cache";
 import { KotaFavorit } from "../../../types/favorit";
 import { HasilGeocoding } from "../../../types/geocoding";
 import { ambilSemuaFavorit, hapusFavorit } from "../../services/favoritStorage";
+import { daftarKotaTersimpan, hapusCache } from "../../services/cacheRepository";
 import { ambilRiwayatPencarian } from "../../services/recentSearchStorage";
 
 export default function TabRiwayat() {
   const [daftarFavorit, setDaftarFavorit] = useState<KotaFavorit[]>([]);
   const [daftarRiwayat, setDaftarRiwayat] = useState<HasilGeocoding[]>([]);
+  const [daftarCache, setDaftarCache] = useState<RingkasanKotaTersimpan[]>([]);
 
   useFocusEffect(
     useCallback(() => {
       ambilSemuaFavorit().then(setDaftarFavorit);
       ambilRiwayatPencarian().then(setDaftarRiwayat);
+      daftarKotaTersimpan().then(setDaftarCache);
     }, []),
   );
 
@@ -33,6 +37,30 @@ export default function TabRiwayat() {
         onPress: () => hapus(kota.id),
       },
     ]);
+  }
+
+  function konfirmasiHapusCache(kota: RingkasanKotaTersimpan) {
+    Alert.alert(
+      "Hapus Cache Kota",
+      `Hapus data offline untuk ${kota.nama} dari perangkat?`,
+      [
+        { text: "Batal", style: "cancel" },
+        {
+          text: "Hapus",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await hapusCache(kota.kunci);
+              setDaftarCache((prev) =>
+                prev.filter((item) => item.kunci !== kota.kunci),
+              );
+            } catch {
+              Alert.alert("Gagal Menghapus", "Cache kota belum dapat dihapus.");
+            }
+          },
+        },
+      ],
+    );
   }
 
   return (
@@ -70,6 +98,46 @@ export default function TabRiwayat() {
         >
           <Text>{kota.name}</Text>
         </TouchableOpacity>
+      ))}
+
+      <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 12 }}>
+        Kota Tersimpan Offline
+      </Text>
+
+      {daftarCache.length === 0 && <Text>Belum ada cache kota</Text>}
+      {daftarCache.map((kota) => (
+        <View
+          key={kota.kunci}
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <TouchableOpacity
+            onPress={() =>
+              router.push({
+                pathname: "/",
+                params: {
+                  recentId: String(kota.id),
+                  recentName: kota.nama,
+                  recentLatitude: String(kota.latitude),
+                  recentLongitude: String(kota.longitude),
+                  recentToken: String(Date.now()),
+                },
+              })
+            }
+            accessibilityRole="button"
+            accessibilityLabel={`Buka cache offline ${kota.nama}`}
+          >
+            <Text>{kota.nama}</Text>
+          </TouchableOpacity>
+          <Button
+            title="Hapus Cache"
+            color="red"
+            onPress={() => konfirmasiHapusCache(kota)}
+          />
+        </View>
       ))}
 
       <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 12 }}>

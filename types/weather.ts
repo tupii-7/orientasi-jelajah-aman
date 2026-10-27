@@ -1,6 +1,7 @@
 // src/types/weather.ts
 export interface CuacaSaatIni {
   suhu: number;
+  kelembapan?: number;
   kodeCuaca: number;
   kecepatanAngin: number;
   waktu: string;

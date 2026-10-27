@@ -352,12 +352,11 @@ export default function HalamanUtama() {
             <WeatherCard
               kota={kotaTerpilih.name}
               suhu={hasil.cuaca.saatIni.suhu}
+              kelembapan={hasil.cuaca.saatIni.kelembapan}
+              kondisi={labelKodeCuaca(hasil.cuaca.saatIni.kodeCuaca)}
+              angin={hasil.cuaca.saatIni.kecepatanAngin}
               tingkatAQI={konversiTingkatAQI(hasil.kualitasUdara.indeksAQI)}
             />
-            <Text style={{ fontSize: 12, color: colors.textSecondary }}>
-              Kondisi: {labelKodeCuaca(hasil.cuaca.saatIni.kodeCuaca)}{" "}
-              {"\u2022"} Angin {hasil.cuaca.saatIni.kecepatanAngin} km/j
-            </Text>
             <TouchableOpacity
               onPress={() => pilihKota(kotaTerpilih, true, false)}
               style={[styles.outlineButton, { borderColor: colors.border }]}

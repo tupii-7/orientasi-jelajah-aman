@@ -10,7 +10,7 @@ export async function ambilCuaca(
 ): Promise<DataCuacaLengkap> {
   const url =
     `${BASE_URL}?latitude=${latitude}&longitude=${longitude}` +
-    `&current=temperature_2m,weather_code,wind_speed_10m` +
+    `&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m` +
     `&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=auto`;
 
   const controller = new AbortController();
@@ -28,6 +28,7 @@ export async function ambilCuaca(
     return {
       saatIni: {
         suhu: data.current.temperature_2m,
+        kelembapan: data.current.relative_humidity_2m,
         kodeCuaca: data.current.weather_code,
         kecepatanAngin: data.current.wind_speed_10m,
         waktu: data.current.time,

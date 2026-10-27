@@ -1,58 +1,143 @@
-# Welcome to your Expo app 👋
+# Jelajah Aman
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplikasi Expo/React Native untuk mencari informasi cuaca dan kualitas udara
+berdasarkan kota atau lokasi pengguna. Aplikasi dirancang agar data kota yang
+pernah dibuka tetap dapat ditampilkan ketika perangkat sedang offline.
 
-Cache-segar adalah data tersimpan yang masih berada dalam batas TTL sehingga aplikasi dapat menampilkannya tanpa meminta data baru ke internet. Cache-basi adalah data tersimpan yang melewati TTL, sehingga aplikasi akan mencoba mengambil data terbaru dan hanya memakainya jika jaringan gagal. First-run offline terjadi ketika aplikasi dibuka tanpa koneksi dan belum memiliki data tersimpan untuk kota tersebut, sehingga tidak ada data yang dapat ditampilkan. Label status data penting agar pengguna memahami apakah informasi yang dilihat berasal dari cache segar, cache basi, atau internet dan dapat menilai tingkat kemutakhirannya.
+## Fitur
 
-## Get started
+- Pencarian kota menggunakan layanan geocoding Open-Meteo.
+- Informasi suhu, kondisi cuaca, dan kualitas udara (AQI).
+- Dukungan lokasi saat ini dengan izin lokasi perangkat.
+- Cache cuaca lokal menggunakan SQLite.
+  - Cache segar digunakan tanpa meminta data baru ke internet.
+  - Cache basi tetap digunakan jika jaringan tidak tersedia.
+  - Cache yang berusia lebih dari 7 hari dibersihkan secara otomatis.
+- Daftar kota tersimpan yang dapat dibuka kembali secara offline.
+- Penghapusan cache kota secara individual dengan konfirmasi.
+- Penyimpanan kota favorit menggunakan penyimpanan lokal.
+- Riwayat maksimal 10 pencarian terakhir.
+  - Kota yang sama tidak digandakan.
+  - Pencarian terbaru berada di urutan paling atas.
+  - Item riwayat dapat diklik untuk memuat ulang kota tersebut.
+- Navigasi tab dengan ikon representatif:
+  - Beranda
+  - Riwayat
+  - Pengaturan
+  - Tentang
+- Pilihan tema tampilan:
+  - Terang
+  - Gelap
+  - Ikuti Sistem
+- Status data yang menjelaskan apakah data berasal dari internet, cache segar,
+  atau cache basi.
 
-1. Install dependencies
+## Teknologi
+
+- Expo SDK 57
+- Expo Router
+- React Native
+- TypeScript
+- `expo-sqlite` untuk cache cuaca
+- `@react-native-async-storage/async-storage` untuk favorit, riwayat, dan
+  preferensi tema
+- `@expo/vector-icons` untuk ikon navigasi
+- Open-Meteo Weather API dan Geocoding API
+
+## Persyaratan
+
+- Node.js dan npm
+- Expo CLI melalui `npx`
+- Expo Go atau emulator Android/iOS
+
+## Menjalankan Aplikasi
+
+1. Pasang dependensi:
 
    ```bash
    npm install
    ```
 
-2. Start the app
+2. Jalankan development server:
 
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+3. Pilih target yang diinginkan dari terminal Expo:
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+   ```bash
+   npm run android
+   npm run ios
+   npm run web
+   ```
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### Menjalankan di Web
 
-## Get a fresh project
+Konfigurasi [`metro.config.js`](./metro.config.js) diperlukan agar Metro dapat
+memuat berkas WASM dari `expo-sqlite`. Dukungan SQLite di web pada Expo SDK 57
+masih berstatus alpha.
 
-When you're ready, run:
+Jika development server sudah pernah berjalan sebelum perubahan konfigurasi,
+hentikan server lalu jalankan ulang dengan cache dibersihkan:
 
 ```bash
-npm run reset-project
+npx expo start --web --clear
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Untuk deployment web, server hosting juga perlu mengirim header berikut agar
+`SharedArrayBuffer` dapat digunakan:
 
-### Other setup steps
+```text
+Cross-Origin-Embedder-Policy: credentialless
+Cross-Origin-Opener-Policy: same-origin
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## Struktur Utama
 
-## Learn more
+```text
+src/
+├── app/
+│   ├── _layout.tsx
+│   └── (tabs)/
+│       ├── _layout.tsx
+│       ├── index.tsx
+│       ├── riwayat.tsx
+│       ├── pengaturan.tsx
+│       └── tentang.tsx
+├── components/
+├── constants/
+├── db/
+├── hooks/
+├── services/
+│   ├── cacheRepository.ts
+│   ├── cuacaRepository.ts
+│   ├── favoritStorage.ts
+│   └── recentSearchStorage.ts
+└── types/
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+## Perilaku Offline
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Ketika kota dipilih, data cuaca dan kualitas udara akan disimpan ke cache
+SQLite berdasarkan koordinat kota. Pada pencarian berikutnya, aplikasi akan:
 
-## Join the community
+1. Menggunakan cache segar jika masih berada dalam batas 30 menit.
+2. Mencoba mengambil data terbaru dari internet jika cache sudah lebih lama.
+3. Menggunakan cache basi jika permintaan jaringan gagal.
+4. Menampilkan pesan error jika tidak ada cache dan jaringan tidak tersedia.
 
-Join our community of developers creating universal apps.
+Cache kota dapat dihapus dari daftar **Kota Tersimpan Offline** di Beranda atau
+tab **Riwayat**. Aplikasi akan meminta konfirmasi sebelum data dihapus.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Pemeriksaan Tipe
+
+Untuk memeriksa kode TypeScript:
+
+```bash
+npx tsc --noEmit
+```
+
+## Lisensi
+
+Lihat file [LICENSE](./LICENSE).
